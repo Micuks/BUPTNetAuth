@@ -1,8 +1,9 @@
 #!/usr/bin/python
 #coding=utf-8
 #vim ts=4
+
 from httplib2 import Http
-from urllib import urlencode
+from urllib.parse import urlencode
 import argparse
 import sys
 
@@ -60,7 +61,7 @@ def test():
     """
     h = Http()
     resp, content = h.request("http://baidu.com")
-    if resp["content-location"] == "http://10.3.8.211":
+    if resp.get("content-location") == "http://10.3.8.211":
         return False
     return True
 
