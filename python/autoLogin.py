@@ -4,8 +4,19 @@
 
 from httplib2 import Http
 from urllib.parse import urlencode
+import requests
 import argparse
 import sys
+
+class AuthServer:
+    """
+    AuthServer: a Authentication Server object
+    AuthServer.url: Auth Server URL
+    """
+    def __init__(url="http://10.3.8.216"):
+        self._url = url
+    def getUrl(self):
+        return self._url
 
 class User:
     """
@@ -55,15 +66,30 @@ def getUsersFromFile(file = None):
             users.append(User(items[0], items[1], items[2]))
     return users
 
-def test():
+def isReachable(url="http://baidu.com"):
+    """
+    Test if the given URL is reachable.
+    """
+    try:
+        response = requests.get(url, timeout=5) 
+        if response.status_code == 200:
+            return True
+    except requests.RequestException:
+        print("Error occurred when attempting to reach {}".format(url))
+        return False
+    return False
+
+def test(url="http://baidu.com"):
     """
     To test current network state.
     """
-    h = Http()
-    resp, content = h.request("http://baidu.com")
-    if resp.get("content-location") == "http://10.3.8.211":
+    if isReachable(url):
+        print("Network is OK!")
+        return True
+    else:
+        print("Network is unreachable!")
         return False
-    return True
+        
 
 def login(user = None, auth_url = None):
     """
@@ -74,18 +100,18 @@ def login(user = None, auth_url = None):
     if user is None or auth_url is None:
         return False
     h = Http()
-    data = {"DDDDD":user.getId(), "upass":user.getPassword(), "save_me":1, "R1":0}
+    data = {"user":user.getId(), "pass":user.getPassword()}
     resp, content = h.request(auth_url, "POST", urlencode(data))
     return test()
 
-def logout(url = "http://10.3.8.211/F.hml"):
+def logout(url = "http://10.3.8.216"):
     """
     Try to logout.
-    url: The logout url, for example: http://10.3.8.211/F.hml"
+    url: The logout url, for example: http://10.3.8.216"
     """
     if test():
         h = Http()
-        resp, content = h.request(url)
+        resp, content = h.request(url+"/logout")
     return not test()
 
 def parse(args):
@@ -121,8 +147,8 @@ def parse(args):
             '--host',
             action='store',
             dest='host',
-            default='http://10.3.8.211',
-            help="The remote address, 'http://10.3.8.211' by default.")
+            default='http://10.3.8.216',
+            help="The remote address, 'http://10.3.8.216' by default.")
     parser.add_argument('-c',
             '--logout',
             action='store_true',
@@ -150,7 +176,8 @@ def parse(args):
     if test():
         print("The network is Ok, You shouldn't login again, now exit!")
         exit(0)
-    url = result.host
+    authServer = AuthServer(result.host)
+    url = authServer.getUrl()
     if len(result.user) > 0 and len(result.password) > 0:
         success = login(User('unknown', result.user, result.password), url)
         if success:
