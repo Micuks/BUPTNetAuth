@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 declare -f showHelp
 declare -f isReachable 
 SERVER=10.3.8.211 # Default server, change this as needed
@@ -23,6 +24,7 @@ isReachable() {
     else
 	    # FIXME ICMP may be disabled ?
         # Fallback to ping if curl is not available
+        echo "Curl not found. Use ping to test network."
 	    ping -c 1 -W 2 "$ADDR" &>/dev/null
     fi
     return $?
@@ -77,7 +79,7 @@ postRequest() {
     fi
     local DATA=$1
     local ADDRESS=$2
-    curl s -X POST -d "$DATA" "$ADDRESS"
+    curl -X POST -d "$DATA" "$ADDRESS"
 }
 
 request() {
@@ -96,7 +98,7 @@ login()
     fi
     [ -z "$ID" ] && inputUserName
     [ -z "$PASSWORD" ] && inputPassword
-    postRequest "DDDDD=$ID&upass=$PASSWORD&save_me=1&R1=0" "$SERVER" &>/dev/null
+    postRequest "user=$ID&pass=$PASSWORD" "$SERVER/login" &>/dev/null
 }
 
 checkDeps() {

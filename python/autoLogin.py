@@ -71,6 +71,7 @@ def isReachable(test_url="http://baidu.com", redirect_url="http://10.3.8.211"):
     Test if the given URL is reachable.
     """
 
+    url = test_url
     try:
         response = requests.get(url, allow_redirects=True, timeout=5) 
         if response.status_code == 200:
