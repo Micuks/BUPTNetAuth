@@ -66,17 +66,24 @@ def getUsersFromFile(file = None):
             users.append(User(items[0], items[1], items[2]))
     return users
 
-def isReachable(url="http://baidu.com"):
+def isReachable(test_url="http://baidu.com", redirect_url="http://10.3.8.211"):
     """
     Test if the given URL is reachable.
     """
+
     try:
-        response = requests.get(url, timeout=5) 
+        response = requests.get(url, allow_redirects=True, timeout=5) 
         if response.status_code == 200:
-            return True
+            # Check if redirected
+            if response.url == redirect_url:
+                print("Redirected to the login page.")
+                return False
+            else:
+                return True
     except requests.RequestException:
         print("Error occurred when attempting to reach {}".format(url))
         return False
+
     return False
 
 def test(url="http://baidu.com"):
