@@ -2,8 +2,6 @@
 # coding=utf-8
 # vim ts=4
 
-from httplib2 import Http
-from urllib.parse import urlencode
 import requests
 import argparse
 import sys
@@ -172,7 +170,7 @@ def parse(args):
     parser.add_argument('-s',
                         '--server',
                         action='store',
-                        dest='host',
+                        dest='auth server',
                         default='http://10.3.8.211',
                         help="The authentication server, 'http://10.3.8.211' by default.")
     parser.add_argument('-c',
