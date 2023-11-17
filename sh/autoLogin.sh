@@ -20,7 +20,7 @@ exit 1
 isReachable() {
     local ADDR=${1:-baidu.com}
     if command -v curl &>/dev/null; then
-	    curl -I "$ADDR" 2>/dev/null | head -n 1 | grep -q "200 OK"
+	    curl -LI "$ADDR" 2>/dev/null | head -n 1 | grep -q -e "200 OK" -e "302 Found"
     else
 	    # FIXME ICMP may be disabled ?
         # Fallback to ping if curl is not available
@@ -29,8 +29,8 @@ isReachable() {
     fi
     return $?
 }
-parseOpts()
-{
+
+parseOpts() {
     # while getopts ":u:p:i:ht" arg
     while getopts ":u:p:s:ht" arg; do
         case $arg in
@@ -72,7 +72,7 @@ getRequest() {
 }
 
 postRequest() {
-    if [ $# -lt 2]; then
+    if [ $# -lt 2 ]; then
         echo "Usage: $0 <data> <url>"
         echo "For example: postRequest 'a=1&b=2' example.com"
         exit 1
@@ -83,7 +83,7 @@ postRequest() {
 }
 
 request() {
-    getRequest $@
+    getRequest "$@"
 }
 
 login()
@@ -103,7 +103,7 @@ login()
 
 checkDeps() {
 	local deps=('curl')
-	for package in ${deps[@]}; do
+	for package in "${deps[@]}"; do
 		if ! command -v $package &>/dev/null; then
 			read -rp "$package is not installed, now install? (y/n):" YES
 			if [ "$YES" != "y" ]; then
@@ -122,7 +122,7 @@ checkDeps() {
 main()
 {
     checkDeps
-    parseOpts $@
+    parseOpts "$@"
     if isReachable baidu.com; then
         echo "The network is OK!"
         exit 0
@@ -137,4 +137,4 @@ main()
     fi
 }
 
-main $@
+main "$@"
